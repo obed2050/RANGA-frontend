@@ -1,0 +1,239 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── CSS Variables (gold palette + surfaces) ───────────────── */
+:root {
+  --gold-50:   #fffbeb;
+  --gold-100:  #fef3c7;
+  --gold-300:  #fcd34d;
+  --gold-400:  #fbbf24;
+  --gold-500:  #f59e0b;
+  --gold-600:  #d97706;
+  --gold-700:  #b45309;
+
+  --surface:        #ffffff;
+  --surface-2:      #f8fafc;
+  --border:         #e2e8f0;
+  --text:           #0f172a;
+  --text-muted:     #64748b;
+  --text-subtle:    #94a3b8;
+}
+
+html.dark {
+  --surface:        #111318;
+  --surface-2:      #1e2028;
+  --border:         #1e293b;
+  --text:           #f1f5f9;
+  --text-muted:     #94a3b8;
+  --text-subtle:    #64748b;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  background: var(--surface-2);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root { min-height: 100vh; }
+* { box-sizing: border-box; }
+
+::selection {
+  background: rgba(245, 158, 11, 0.25);
+  color: inherit;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 9999px; }
+
+/* ─── Component layer ───────────────────────────────────────── */
+@layer components {
+
+  /* ── Cards ── */
+  .card {
+    @apply rounded-2xl;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+  }
+
+  .card-hover {
+    @apply card transition duration-200;
+    cursor: pointer;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    border-color: rgba(251, 191, 36, 0.55);
+    box-shadow: 0 6px 24px rgba(15, 23, 42, 0.10);
+  }
+
+  /* ── Inputs ── */
+  .input {
+    @apply w-full rounded-xl px-4 py-2.5 text-sm outline-none transition;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .input::placeholder { color: var(--text-subtle); }
+  .input:focus {
+    border-color: var(--gold-500);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+  }
+
+  .input-lg {
+    @apply input rounded-2xl px-5 py-3.5 text-base;
+  }
+
+  select.input,
+  select.input-lg { cursor: pointer; }
+
+  /* ── Buttons ── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl
+           px-4 py-2.5 text-sm font-semibold transition
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn:active:not(:disabled) { transform: scale(0.97); }
+
+  .btn-gold {
+    @apply btn;
+    background: var(--gold-500);
+    color: #0f172a;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .btn-gold:hover:not(:disabled) { background: var(--gold-400); }
+
+  .btn-gold-outline {
+    @apply btn;
+    border: 1px solid var(--gold-500);
+    color: var(--gold-600);
+    background: transparent;
+  }
+  .btn-gold-outline:hover:not(:disabled) { background: var(--gold-50); }
+  html.dark .btn-gold-outline { color: var(--gold-400); }
+  html.dark .btn-gold-outline:hover:not(:disabled) { background: rgba(245,158,11,0.10); }
+
+  .btn-dark {
+    @apply btn bg-slate-900 text-white hover:bg-slate-800
+           dark:bg-slate-700 dark:hover:bg-slate-600;
+  }
+
+  .btn-ghost {
+    @apply btn text-slate-600 hover:bg-slate-100
+           dark:text-slate-300 dark:hover:bg-slate-800;
+  }
+
+  .btn-lg { @apply px-6 py-3.5 text-base rounded-2xl; }
+  .btn-sm { @apply px-3 py-1.5 text-xs rounded-lg; }
+
+  /* ── Badges ── */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .badge-gold {
+    @apply badge;
+    background: var(--gold-100);
+    color: var(--gold-700);
+  }
+  html.dark .badge-gold {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--gold-300);
+  }
+
+  .badge-slate {
+    @apply badge bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400;
+  }
+
+  /* ── Layout ── */
+  .section {
+    @apply w-full px-3 sm:px-5 lg:px-8;
+  }
+
+  .divider {
+    @apply border-t border-slate-200 dark:border-slate-800;
+  }
+
+  /* ── Typography ── */
+  .page-label {
+    @apply text-xs font-semibold uppercase tracking-widest;
+    color: var(--gold-600);
+  }
+  html.dark .page-label { color: var(--gold-400); }
+
+  /* ── Skeleton ── */
+  .skeleton {
+    @apply animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800;
+  }
+
+  /* ── Nav link ── */
+  .nav-link {
+    @apply text-sm font-medium text-slate-600 transition dark:text-slate-300;
+  }
+  .nav-link:hover { color: var(--gold-600); }
+  html.dark .nav-link:hover { color: var(--gold-400); }
+
+  .nav-link-active { color: var(--gold-600); }
+  html.dark .nav-link-active { color: var(--gold-400); }
+
+  /* ── Sidebar link ── */
+  .sidebar-link {
+    @apply flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium
+           text-slate-600 transition hover:bg-slate-100 hover:text-slate-900
+           dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100;
+  }
+
+  .sidebar-link-active {
+    @apply sidebar-link;
+    background: var(--gold-50);
+    color: var(--gold-700);
+  }
+  .sidebar-link-active:hover {
+    background: var(--gold-50);
+    color: var(--gold-700);
+  }
+  html.dark .sidebar-link-active {
+    background: rgba(245, 158, 11, 0.10);
+    color: var(--gold-400);
+  }
+  html.dark .sidebar-link-active:hover {
+    background: rgba(245, 158, 11, 0.10);
+    color: var(--gold-400);
+  }
+
+  /* ── Category pill ── */
+  .pill {
+    @apply cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium transition;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+  }
+  .pill:hover {
+    border-color: var(--gold-400);
+    color: var(--gold-600);
+  }
+  html.dark .pill:hover { color: var(--gold-400); }
+
+  .pill-active {
+    border-color: var(--gold-500) !important;
+    background: var(--gold-50) !important;
+    color: var(--gold-700) !important;
+    font-weight: 600;
+  }
+  html.dark .pill-active {
+    background: rgba(245, 158, 11, 0.10) !important;
+    color: var(--gold-300) !important;
+  }
+
+  /* ── Stat card ── */
+  .stat-card {
+    @apply card flex flex-col gap-1 p-5;
+  }
+}
