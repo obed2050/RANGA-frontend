@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const Footer = () => {
-  const { chatMessages, sendChatMessage } = useAuth()
+  const { chatMessages, sendChatMessage, user } = useAuth()
+  const navigate = useNavigate()
   const [chatMsg, setChatMsg] = useState('')
   const chatEndRef = useRef(null)
 
@@ -13,6 +14,10 @@ const Footer = () => {
 
   const send = () => {
     if (!chatMsg.trim()) return
+    if (!user) {
+      navigate('/login')
+      return
+    }
     sendChatMessage(chatMsg, false)
     setChatMsg('')
   }
@@ -121,8 +126,10 @@ const Footer = () => {
                   value={chatMsg}
                   onChange={(e) => setChatMsg(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && send()}
-                  placeholder="Type a message..."
+                  placeholder={user ? 'Type a message...' : 'Login to chat...'}
                   className="input py-1.5 text-xs"
+                  readOnly={!user}
+                  onClick={() => { if (!user) navigate('/login') }}
                 />
                 <button onClick={send} className="btn btn-gold btn-sm px-3">→</button>
               </div>

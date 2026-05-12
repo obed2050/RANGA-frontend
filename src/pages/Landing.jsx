@@ -85,11 +85,31 @@ const Landing = () => {
             </div>
           </div>
 
+          {/* Categories — mobile: horizontal scroll pills, desktop: hidden (iri muri 3-col grid) */}
+          <div className="mb-4 lg:hidden">
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold-600 dark:text-gold-400">Categories</p>
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.label}
+                  onClick={() => navigate('/home')}
+                  className="flex shrink-0 flex-col items-center gap-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:border-gold-400 hover:bg-gold-50 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-gold-500 dark:hover:bg-gold-500/10"
+                >
+                  <span className="text-2xl">{cat.icon}</span>
+                  <span className="text-[11px] font-medium text-slate-700 dark:text-slate-300">{cat.label}</span>
+                  {categoryCounts[cat.label] ? (
+                    <span className="text-[10px] text-slate-400">{categoryCounts[cat.label]}</span>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* 3-column hero */}
           <div className="grid gap-3 lg:grid-cols-[200px_1fr_220px]" style={{ height: '440px' }}>
 
-            {/* Left — Categories (ntoya) */}
-            <div className="card overflow-y-auto p-2.5">
+            {/* Left — Categories: hidden kuri mobile (zigaragara hejuru) */}
+            <div className="card hidden overflow-y-auto p-2.5 lg:block">
               <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold-600 dark:text-gold-400">Categories</p>
               <div className="space-y-0.5">
                 {CATEGORIES.map((cat) => (
@@ -153,8 +173,8 @@ const Landing = () => {
               </div>
             </div>
 
-            {/* Right — Images grid + View All */}
-            <div className="flex flex-col gap-2">
+            {/* Right — Images grid + View All: hidden kuri mobile */}
+            <div className="hidden flex-col gap-2 lg:flex">
               <div className="grid grid-cols-2 gap-2 flex-1">
                 {SIDE_IMAGES.map((src, i) => (
                   <div key={i} className="overflow-hidden rounded-xl">
