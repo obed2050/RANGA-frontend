@@ -91,9 +91,6 @@ const Footer = () => {
               <a href="https://wa.me/250796449412" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-slate-600 transition hover:text-gold-600 dark:text-slate-400 dark:hover:text-gold-400">
                 💬 WhatsApp Us
               </a>
-              <Link to="/comments" className="flex items-center gap-2 text-sm text-gold-600 font-medium transition hover:text-gold-500 dark:text-gold-400 dark:hover:text-gold-300">
-                🗨️ Community Comments →
-              </Link>
             </div>
 
             {/* Live Chat */}
