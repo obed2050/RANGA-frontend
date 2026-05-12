@@ -1,4 +1,5 @@
 import { Route, Routes, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { Toaster } from 'react-hot-toast'
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
@@ -17,6 +18,12 @@ import NotFound from './pages/NotFound.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import AdminRoute from './components/AdminRoute.jsx'
 
+const ScrollToTop = () => {
+  const { pathname } = useLocation()
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }) }, [pathname])
+  return null
+}
+
 const Layout = ({ children }) => {
   const { pathname } = useLocation()
   const isAdmin = pathname === '/admin'
@@ -33,6 +40,7 @@ const Layout = ({ children }) => {
 function App() {
   return (
     <>
+      <ScrollToTop />
       <Routes>
         <Route path="/"               element={<Layout><Landing /></Layout>} />
         <Route path="/home"           element={<Layout><Home /></Layout>} />

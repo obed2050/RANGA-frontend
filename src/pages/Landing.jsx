@@ -43,6 +43,10 @@ const Landing = () => {
   const [stats, setStats] = useState({ totalSellers: 0, totalCategories: 0, totalAds: 0, totalUsers: 0, totalBuyers: 0 })
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [])
+
+  useEffect(() => {
     getSystemStats().then(setStats)
   }, [])
 

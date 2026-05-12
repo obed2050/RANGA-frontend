@@ -8,8 +8,13 @@ const Footer = () => {
   const [chatMsg, setChatMsg] = useState('')
   const chatEndRef = useRef(null)
 
+  const chatBoxRef = useRef(null)
+
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    // Scroll muri chat box gusa, si page yose
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight
+    }
   }, [chatMessages])
 
   const send = () => {
@@ -104,7 +109,7 @@ const Footer = () => {
                 <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                 <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">Live Chat</p>
               </div>
-              <div className="h-28 overflow-y-auto space-y-1.5 p-2">
+              <div ref={chatBoxRef} className="h-28 overflow-y-auto space-y-1.5 p-2">
                 {chatMessages.map((m) => (
                   <div key={m.id} className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`rounded-lg px-2.5 py-1 text-xs max-w-[80%] ${
