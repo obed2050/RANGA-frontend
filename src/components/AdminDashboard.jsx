@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const AdminDashboard = () => {
-  const { getSystemStats, ads, getAllUsers, comments, replyComment, chatMessages, sendChatMessage, dealsCount } = useAuth()
+  const { getSystemStats, ads, getAllUsers, comments, replyComment, chatMessages, sendChatMessage, dealsCount, fetchChat } = useAuth()
   const [stats, setStats] = useState({ totalUsers: 0, totalSellers: 0, totalBuyers: 0, totalAds: 0, totalCategories: 0 })
   const [allUsers, setAllUsers] = useState([])
   const recentAds = ads.slice(0, 5)
@@ -13,6 +13,14 @@ const AdminDashboard = () => {
   useEffect(() => {
     getSystemStats().then(setStats)
     getAllUsers().then(setAllUsers)
+  }, [])
+
+  // Refresh chat buri segundu 5
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchChat && fetchChat()
+    }, 5000)
+    return () => clearInterval(interval)
   }, [])
 
   const recentUsers = allUsers.slice(0, 5)

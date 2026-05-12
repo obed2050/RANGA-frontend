@@ -42,13 +42,32 @@ export const AuthProvider = ({ children }) => {
     }
   }, [])
   const [comments, setComments] = useState(() => getLocalJson(LOCAL_COMMENTS, INITIAL_COMMENTS))
-  const [chatMessages, setChatMessages] = useState(() => getLocalJson(LOCAL_CHAT, [
-    { id: 1, from: 'support', text: 'Hi! How can we help you today?', time: 'now', userId: 'global' },
-  ]))
+  const [chatMessages, setChatMessages] = useState([
+    { id: 1, from: 'support', text: 'Hi! How can we help you today?', time: 'now' },
+  ])
+
+  // Fetch chat messages from backend
+  const fetchChat = async () => {
+    try {
+      const res = await api.get('/api/chat')
+      if (res.data?.length > 0) {
+        setChatMessages(res.data.map((m) => ({
+          id: m.id,
+          from: m.from,
+          text: m.text,
+          senderName: m.senderName,
+          time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        })))
+      }
+    } catch { /* use default */ }
+  }
+
+  useEffect(() => {
+    if (token) fetchChat()
+  }, [token])
   const [dealsCount, setDealsCount] = useState(() => getLocalJson(LOCAL_DEALS, 0))
 
   useEffect(() => { saveLocalJson(LOCAL_COMMENTS, comments) }, [comments])
-  useEffect(() => { saveLocalJson(LOCAL_CHAT, chatMessages) }, [chatMessages])
   useEffect(() => { saveLocalJson(LOCAL_DEALS, dealsCount) }, [dealsCount])
 
   useEffect(() => {
@@ -247,14 +266,19 @@ export const AuthProvider = ({ children }) => {
 
   const recordDeal = () => setDealsCount((c) => c + 1)
 
-  const sendChatMessage = (text, fromAdmin = false) => {
-    setChatMessages((c) => [...c, {
+  const sendChatMessage = async (text, fromAdmin = false) => {
+    const from = fromAdmin ? 'admin' : 'user'
+    const newMsg = {
       id: Date.now(),
-      from: fromAdmin ? 'admin' : 'user',
+      from,
       text,
+      senderName: user?.fullName || (fromAdmin ? 'Admin' : 'User'),
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      userId: 'global',
-    }])
+    }
+    setChatMessages((c) => [...c, newMsg])
+    try {
+      await api.post('/api/chat', { text, from })
+    } catch { /* ignore */ }
   }
 
   return (
@@ -277,6 +301,7 @@ export const AuthProvider = ({ children }) => {
         replyComment,
         chatMessages,
         sendChatMessage,
+        fetchChat,
         dealsCount,
         recordDeal,
         updateAd,
