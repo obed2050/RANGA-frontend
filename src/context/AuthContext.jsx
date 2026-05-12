@@ -46,21 +46,25 @@ export const AuthProvider = ({ children }) => {
     { id: 1, from: 'support', text: 'Hi! How can we help you today?', time: 'now' },
   ])
 
-  // Fetch chat messages from backend
+  // Fetch chat messages za user (ze gusa)
   const fetchChat = async () => {
+    if (!token) return
     try {
-      const res = await api.get('/api/chat')
+      const res = await api.get('/api/chat/my')
       if (res.data?.length > 0) {
-        setChatMessages(res.data.map((m) => ({
-          id: m.id,
-          from: m.from,
-          text: m.text,
-          senderName: m.senderName,
-          time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        })))
+        setChatMessages(res.data.map(normalizeMsg))
       }
-    } catch { /* use default */ }
+    } catch { /* ignore */ }
   }
+
+  const normalizeMsg = (m) => ({
+    id: m.id,
+    from: m.from,
+    text: m.text,
+    senderName: m.senderName,
+    userId: m.userId,
+    time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+  })
 
   useEffect(() => {
     if (token) fetchChat()
@@ -266,7 +270,7 @@ export const AuthProvider = ({ children }) => {
 
   const recordDeal = () => setDealsCount((c) => c + 1)
 
-  const sendChatMessage = async (text, fromAdmin = false) => {
+  const sendChatMessage = async (text, fromAdmin = false, targetUserId = null) => {
     const from = fromAdmin ? 'admin' : 'user'
     const newMsg = {
       id: Date.now(),
@@ -275,9 +279,15 @@ export const AuthProvider = ({ children }) => {
       senderName: user?.fullName || (fromAdmin ? 'Admin' : 'User'),
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     }
-    setChatMessages((c) => [...c, newMsg])
+    if (!fromAdmin) {
+      setChatMessages((c) => [...c, newMsg])
+    }
     try {
-      await api.post('/api/chat', { text, from })
+      if (fromAdmin && targetUserId) {
+        await api.post('/api/chat/reply', { text, userId: targetUserId })
+      } else {
+        await api.post('/api/chat/send', { text })
+      }
     } catch { /* ignore */ }
   }
 
