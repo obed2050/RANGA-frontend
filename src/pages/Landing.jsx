@@ -204,7 +204,7 @@ const Landing = () => {
       </section>
 
       {/* ── How it works ── */}
-      <section className="py-12 bg-gold-50/40 dark:bg-slate-950/60">
+      <section id="about" className="py-12 bg-gold-50/40 dark:bg-slate-950/60">
         <div className="section">
           <div className="mb-6 text-center">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">How it works</h2>
@@ -224,7 +224,7 @@ const Landing = () => {
       </section>
 
       {/* ── CTA Banner ── */}
-      <section className="py-12">
+      <section id="contact" className="py-12">
         <div className="section">
           <div className="card overflow-hidden bg-gradient-to-br from-gold-500 to-gold-600 p-10 text-center shadow-gold-lg dark:from-gold-600 dark:to-gold-700">
             <h2 className="text-2xl font-extrabold text-slate-950">Start selling on RANGA</h2>

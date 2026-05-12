@@ -26,10 +26,10 @@ const X = () => (
 )
 
 const NAV_GUEST = [
-  { label: 'Explore',  to: '/home' },
-  { label: 'Sell',     to: '/seller-landing' },
-  { label: 'About',    to: '/home' },
-  { label: 'Contact',  to: '/home' },
+  { label: 'Explore', to: '/home' },
+  { label: 'Sell',    to: '/seller-landing' },
+  { label: 'About',   to: '/#about' },
+  { label: 'Contact', to: '/#contact' },
 ]
 const NAV_SELLER = [
   { label: 'Dashboard', to: '/dashboard' },
@@ -83,15 +83,33 @@ const Navbar = () => {
         {/* Desktop nav */}
         <nav className="hidden items-center gap-1 md:flex">
           {navItems.map((item) => (
-            <NavLink
-              key={item.label}
-              to={item.to}
-              className={({ isActive }) =>
-                `nav-link rounded-lg px-3 py-2 ${isActive ? 'nav-link-active bg-gold-50 dark:bg-gold-500/10' : ''}`
-              }
-            >
-              {item.label}
-            </NavLink>
+            item.to.startsWith('/#') ? (
+              <button
+                key={item.label}
+                onClick={() => {
+                  if (location.pathname !== '/') {
+                    window.location.href = item.to
+                  } else {
+                    const id = item.to.replace('/#', '')
+                    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+                  }
+                }}
+                className="nav-link rounded-lg px-3 py-2"
+              >
+                {item.label}
+              </button>
+            ) : (
+              <NavLink
+                key={item.label}
+                to={item.to}
+                end
+                className={({ isActive }) =>
+                  `nav-link rounded-lg px-3 py-2 ${isActive ? 'nav-link-active bg-gold-50 dark:bg-gold-500/10' : ''}`
+                }
+              >
+                {item.label}
+              </NavLink>
+            )
           ))}
         </nav>
 
@@ -178,19 +196,38 @@ const Navbar = () => {
         <div className="border-t border-slate-200/80 bg-white px-4 pb-4 pt-2 dark:border-slate-800/80 dark:bg-[#0d0f14] md:hidden animate-fade-in">
           <nav className="flex flex-col gap-0.5">
             {navItems.map((item) => (
-              <NavLink
-                key={item.label}
-                to={item.to}
-                className={({ isActive }) =>
-                  `rounded-xl px-4 py-3 text-sm font-medium transition ${
-                    isActive
-                      ? 'bg-gold-50 text-gold-700 dark:bg-gold-500/10 dark:text-gold-400'
-                      : 'text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800/60'
-                  }`
-                }
-              >
-                {item.label}
-              </NavLink>
+              item.to.startsWith('/#') ? (
+                <button
+                  key={item.label}
+                  onClick={() => {
+                    setOpen(false)
+                    if (location.pathname !== '/') {
+                      window.location.href = item.to
+                    } else {
+                      const id = item.to.replace('/#', '')
+                      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+                    }
+                  }}
+                  className="rounded-xl px-4 py-3 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800/60"
+                >
+                  {item.label}
+                </button>
+              ) : (
+                <NavLink
+                  key={item.label}
+                  to={item.to}
+                  end
+                  className={({ isActive }) =>
+                    `rounded-xl px-4 py-3 text-sm font-medium transition ${
+                      isActive
+                        ? 'bg-gold-50 text-gold-700 dark:bg-gold-500/10 dark:text-gold-400'
+                        : 'text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800/60'
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              )
             ))}
           </nav>
           <div className="mt-3 flex gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
