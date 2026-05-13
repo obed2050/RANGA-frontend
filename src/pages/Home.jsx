@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useNavigate } from 'react-router-dom'
 import AdCard from '../components/AdCard.jsx'
 import SearchBar from '../components/SearchBar.jsx'
+import { getLandingImages } from '../components/AdminSettings.jsx'
 
 const PHRASES = [
   'Find the best ads near you',
@@ -66,12 +68,17 @@ const AdSkeleton = () => (
 
 const Home = () => {
   const { ads } = useAuth()
-  const [search, setSearch]         = useState('')
-  const [category, setCategory]     = useState('All')
+  const navigate = useNavigate()
+  const [search, setSearch]           = useState('')
+  const [category, setCategory]       = useState('All')
   const [subcategory, setSubcategory] = useState('All')
-  const [loading, setLoading]       = useState(true)
+  const [loading, setLoading]         = useState(true)
   const typedText = useTypewriter(PHRASES)
   const [slideIdx, setSlideIdx] = useState(0)
+
+  // Ikoresha images za admin niba zihari
+  const landingImgs = getLandingImages()
+  const heroSlots = landingImgs.centre.map((s) => typeof s === 'string' ? { url: s, adId: null } : s)
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 500)
@@ -79,7 +86,7 @@ const Home = () => {
   }, [])
 
   useEffect(() => {
-    const t = setInterval(() => setSlideIdx((i) => (i + 1) % HERO_IMAGES.length), 3500)
+    const t = setInterval(() => setSlideIdx((i) => (i + 1) % heroSlots.length), 3500)
     return () => clearInterval(t)
   }, [])
 
@@ -106,32 +113,24 @@ const Home = () => {
 
       {/* Hero mini */}
       <div className="relative mb-5 overflow-hidden rounded-2xl" style={{ height: '180px' }}>
-        {HERO_IMAGES.map((src, i) => (
-          <img
-            key={src}
-            src={src}
-            alt={`hero ${i}`}
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
-              i === slideIdx ? 'opacity-100' : 'opacity-0'
-            }`}
-          />
+        {heroSlots.map((slot, i) => (
+          <div key={i}
+            onClick={() => slot.adId && navigate(`/product/${slot.adId}`)}
+            className={`absolute inset-0 transition-opacity duration-1000 ${i === slideIdx ? 'opacity-100' : 'opacity-0'} ${slot.adId ? 'cursor-pointer' : ''}`}>
+            <img src={slot.url} alt={`hero ${i}`} className="h-full w-full object-cover" />
+          </div>
         ))}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
-        <div className="absolute inset-0 flex flex-col justify-center px-6">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 flex flex-col justify-center px-6 pointer-events-none">
           <p className="page-label text-gold-400">Marketplace</p>
           <h1 className="mt-1 text-2xl font-bold text-white sm:text-3xl">
             {typedText}<span className="animate-pulse text-gold-400">|</span>
           </h1>
         </div>
         <div className="absolute bottom-2 right-3 flex gap-1">
-          {HERO_IMAGES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setSlideIdx(i)}
-              className={`h-1.5 rounded-full transition-all ${
-                i === slideIdx ? 'w-4 bg-gold-400' : 'w-1.5 bg-white/40'
-              }`}
-            />
+          {heroSlots.map((_, i) => (
+            <button key={i} onClick={() => setSlideIdx(i)}
+              className={`h-1.5 rounded-full transition-all ${i === slideIdx ? 'w-4 bg-gold-400' : 'w-1.5 bg-white/40'}`} />
           ))}
         </div>
       </div>
