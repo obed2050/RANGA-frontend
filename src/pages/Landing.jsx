@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import { getLandingImages } from '../components/AdminSettings.jsx'
 
 const CATEGORIES = [
   { icon: '🏠', label: 'Real Estate' },
@@ -17,13 +18,13 @@ const CATEGORIES = [
   { icon: '🐾', label: 'Pets' },
 ]
 
-const CENTRE_IMAGES = [
+const DEFAULT_CENTRE = [
   '/Screenshot 2026-05-11 181232.png',
   '/house1.webp',
   '/car1.webp',
 ]
 
-const SIDE_IMAGES = [
+const DEFAULT_SIDE = [
   '/laptoop1.webp',
   '/house2.webp',
   '/car2.webp',
@@ -41,6 +42,9 @@ const Landing = () => {
   const { ads, getSystemStats, dealsCount } = useAuth()
   const [slideIdx, setSlideIdx] = useState(0)
   const [stats, setStats] = useState({ totalSellers: 0, totalCategories: 0, totalAds: 0, totalUsers: 0, totalBuyers: 0 })
+  const [landingImgs] = useState(() => getLandingImages())
+  const CENTRE_IMAGES = landingImgs.centre
+  const SIDE_IMAGES = landingImgs.side
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
