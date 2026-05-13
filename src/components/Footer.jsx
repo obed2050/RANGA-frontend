@@ -3,19 +3,23 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const Footer = () => {
-  const { chatMessages, sendChatMessage, user } = useAuth()
+  const { chatMessages, sendChatMessage, user, fetchChat } = useAuth()
   const navigate = useNavigate()
   const [chatMsg, setChatMsg] = useState('')
-  const chatEndRef = useRef(null)
-
   const chatBoxRef = useRef(null)
 
   useEffect(() => {
-    // Scroll muri chat box gusa, si page yose
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight
     }
   }, [chatMessages])
+
+  // Refresh messages buri segundu 5 kugirango user abone replies za admin
+  useEffect(() => {
+    if (!user) return
+    const t = setInterval(() => fetchChat(), 5000)
+    return () => clearInterval(t)
+  }, [user])
 
   const send = () => {
     if (!chatMsg.trim()) return
@@ -106,38 +110,54 @@ const Footer = () => {
             {/* Live Chat */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-2 border-b border-slate-200 px-3 py-2 dark:border-slate-700">
-                <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                <span className={`h-2 w-2 rounded-full ${user ? 'bg-green-500 animate-pulse' : 'bg-slate-400'}`} />
                 <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">Live Chat</p>
+                {user && <span className="ml-auto text-[10px] text-slate-400">{user.fullName}</span>}
               </div>
-              <div ref={chatBoxRef} className="h-28 overflow-y-auto space-y-1.5 p-2">
-                {chatMessages.map((m) => (
-                  <div key={m.id} className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`rounded-lg px-2.5 py-1 text-xs max-w-[80%] ${
-                      m.from === 'user'
-                        ? 'bg-gold-500 text-slate-950'
-                        : m.from === 'admin'
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300'
-                        : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
-                    }`}>
-                      {m.from === 'admin' && <p className="text-[10px] font-bold mb-0.5">🛡 Admin</p>}
-                      {m.text}
-                    </div>
+
+              {!user ? (
+                // Utakoze login — garagaza message yo gukora login
+                <div className="flex flex-col items-center justify-center gap-3 p-4 text-center">
+                  <span className="text-2xl">🔐</span>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Login kugirango ucatinge na support</p>
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="btn btn-gold btn-sm w-full"
+                  >
+                    Login to Chat
+                  </button>
+                </div>
+              ) : (
+                // Wakoze login — garagaza messages ze gusa
+                <>
+                  <div ref={chatBoxRef} className="h-28 overflow-y-auto space-y-1.5 p-2">
+                    {chatMessages.map((m) => (
+                      <div key={m.id} className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`rounded-lg px-2.5 py-1 text-xs max-w-[80%] ${
+                          m.from === 'user'
+                            ? 'bg-gold-500 text-slate-950'
+                            : m.from === 'admin'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300'
+                            : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                        }`}>
+                          {m.from === 'admin' && <p className="text-[10px] font-bold mb-0.5">🛡 Admin</p>}
+                          {m.text}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-                <div ref={chatEndRef} />
-              </div>
-              <div className="flex gap-1.5 border-t border-slate-200 p-2 dark:border-slate-700">
-                <input
-                  value={chatMsg}
-                  onChange={(e) => setChatMsg(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && send()}
-                  placeholder={user ? 'Type a message...' : 'Login to chat...'}
-                  className="input py-1.5 text-xs"
-                  readOnly={!user}
-                  onClick={() => { if (!user) navigate('/login') }}
-                />
-                <button onClick={send} className="btn btn-gold btn-sm px-3">→</button>
-              </div>
+                  <div className="flex gap-1.5 border-t border-slate-200 p-2 dark:border-slate-700">
+                    <input
+                      value={chatMsg}
+                      onChange={(e) => setChatMsg(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && send()}
+                      placeholder="Type a message..."
+                      className="input py-1.5 text-xs"
+                    />
+                    <button onClick={send} className="btn btn-gold btn-sm px-3">→</button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

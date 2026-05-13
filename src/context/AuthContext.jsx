@@ -42,20 +42,9 @@ export const AuthProvider = ({ children }) => {
     }
   }, [])
   const [comments, setComments] = useState(() => getLocalJson(LOCAL_COMMENTS, INITIAL_COMMENTS))
-  const [chatMessages, setChatMessages] = useState([
-    { id: 1, from: 'support', text: 'Hi! How can we help you today?', time: 'now' },
-  ])
+  const DEFAULT_CHAT = [{ id: 0, from: 'support', text: 'Hi! How can we help you today?', time: 'now' }]
 
-  // Fetch chat messages za user (ze gusa)
-  const fetchChat = async () => {
-    if (!token) return
-    try {
-      const res = await api.get('/api/chat/my')
-      if (res.data?.length > 0) {
-        setChatMessages(res.data.map(normalizeMsg))
-      }
-    } catch { /* ignore */ }
-  }
+  const [chatMessages, setChatMessages] = useState(DEFAULT_CHAT)
 
   const normalizeMsg = (m) => ({
     id: m.id,
@@ -66,8 +55,28 @@ export const AuthProvider = ({ children }) => {
     time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
   })
 
+  // Fetch chat messages za user (ze gusa)
+  const fetchChat = async () => {
+    if (!token) return
+    try {
+      const res = await api.get('/api/chat/my')
+      if (res.data?.length > 0) {
+        setChatMessages(res.data.map(normalizeMsg))
+      } else {
+        setChatMessages(DEFAULT_CHAT)
+      }
+    } catch {
+      setChatMessages(DEFAULT_CHAT)
+    }
+  }
+
   useEffect(() => {
-    if (token) fetchChat()
+    if (token) {
+      fetchChat()
+    } else {
+      // Logout — siba messages ako kanya
+      setChatMessages(DEFAULT_CHAT)
+    }
   }, [token])
   const [dealsCount, setDealsCount] = useState(() => getLocalJson(LOCAL_DEALS, 0))
 
@@ -142,6 +151,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null)
     setToken(null)
+    setChatMessages(DEFAULT_CHAT)
   }
 
   const addAd = async (newAd) => {
@@ -287,6 +297,8 @@ export const AuthProvider = ({ children }) => {
         await api.post('/api/chat/reply', { text, userId: targetUserId })
       } else {
         await api.post('/api/chat/send', { text })
+        // Refresh messages za user nyuma yo kohereza
+        await fetchChat()
       }
     } catch { /* ignore */ }
   }
