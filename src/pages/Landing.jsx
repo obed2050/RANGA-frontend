@@ -18,19 +18,6 @@ const CATEGORIES = [
   { icon: '🐾', label: 'Pets' },
 ]
 
-const DEFAULT_CENTRE = [
-  '/Screenshot 2026-05-11 181232.png',
-  '/house1.webp',
-  '/car1.webp',
-]
-
-const DEFAULT_SIDE = [
-  '/laptoop1.webp',
-  '/house2.webp',
-  '/car2.webp',
-  '/phone1.webp',
-]
-
 const HOW = [
   { step: '01', icon: '🔍', title: 'Browse Ads' },
   { step: '02', icon: '📞', title: 'Contact Seller' },
@@ -43,19 +30,15 @@ const Landing = () => {
   const [slideIdx, setSlideIdx] = useState(0)
   const [stats, setStats] = useState({ totalSellers: 0, totalCategories: 0, totalAds: 0, totalUsers: 0, totalBuyers: 0 })
   const [landingImgs] = useState(() => getLandingImages())
-  const CENTRE_IMAGES = landingImgs.centre
-  const SIDE_IMAGES = landingImgs.side
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' })
-  }, [])
+  // Normalize slots — support both old string format and new { url, adId } format
+  const centreSlots = landingImgs.centre.map((s) => typeof s === 'string' ? { url: s, adId: null } : s)
+  const sideSlots   = landingImgs.side.map((s) => typeof s === 'string' ? { url: s, adId: null } : s)
 
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }) }, [])
+  useEffect(() => { getSystemStats().then(setStats) }, [])
   useEffect(() => {
-    getSystemStats().then(setStats)
-  }, [])
-
-  useEffect(() => {
-    const t = setInterval(() => setSlideIdx((i) => (i + 1) % CENTRE_IMAGES.length), 3500)
+    const t = setInterval(() => setSlideIdx((i) => (i + 1) % centreSlots.length), 3500)
     return () => clearInterval(t)
   }, [])
 
@@ -64,6 +47,12 @@ const Landing = () => {
     ads.forEach((ad) => { map[ad.category] = (map[ad.category] || 0) + 1 })
     return map
   }, [ads])
+
+  const handleSlotClick = (slot) => {
+    if (slot.adId) {
+      navigate(`/product/${slot.adId}`)
+    }
+  }
 
   return (
     <div className="overflow-hidden">
@@ -93,21 +82,16 @@ const Landing = () => {
             </div>
           </div>
 
-          {/* Categories — mobile: horizontal scroll pills, desktop: hidden (iri muri 3-col grid) */}
+          {/* Categories — mobile horizontal scroll */}
           <div className="mb-4 lg:hidden">
             <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold-600 dark:text-gold-400">Categories</p>
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-2 overflow-x-auto pb-2">
               {CATEGORIES.map((cat) => (
-                <button
-                  key={cat.label}
-                  onClick={() => navigate('/home')}
-                  className="flex shrink-0 flex-col items-center gap-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:border-gold-400 hover:bg-gold-50 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-gold-500 dark:hover:bg-gold-500/10"
-                >
+                <button key={cat.label} onClick={() => navigate('/home')}
+                  className="flex shrink-0 flex-col items-center gap-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:border-gold-400 hover:bg-gold-50 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-gold-500 dark:hover:bg-gold-500/10">
                   <span className="text-2xl">{cat.icon}</span>
                   <span className="text-[11px] font-medium text-slate-700 dark:text-slate-300">{cat.label}</span>
-                  {categoryCounts[cat.label] ? (
-                    <span className="text-[10px] text-slate-400">{categoryCounts[cat.label]}</span>
-                  ) : null}
+                  {categoryCounts[cat.label] ? <span className="text-[10px] text-slate-400">{categoryCounts[cat.label]}</span> : null}
                 </button>
               ))}
             </div>
@@ -116,43 +100,42 @@ const Landing = () => {
           {/* 3-column hero */}
           <div className="grid gap-3 lg:grid-cols-[200px_1fr_220px]" style={{ height: '440px' }}>
 
-            {/* Left — Categories: hidden kuri mobile (zigaragara hejuru) */}
+            {/* Left — Categories desktop */}
             <div className="card hidden overflow-y-auto p-2.5 lg:block">
               <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gold-600 dark:text-gold-400">Categories</p>
               <div className="space-y-0.5">
                 {CATEGORIES.map((cat) => (
-                  <button
-                    key={cat.label}
-                    onClick={() => navigate('/home')}
-                    className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition hover:bg-gold-50 dark:hover:bg-gold-500/10"
-                  >
+                  <button key={cat.label} onClick={() => navigate('/home')}
+                    className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition hover:bg-gold-50 dark:hover:bg-gold-500/10">
                     <span className="text-sm">{cat.icon}</span>
                     <div className="min-w-0">
                       <p className="truncate text-xs font-medium text-slate-800 dark:text-slate-200">{cat.label}</p>
-                      {categoryCounts[cat.label] ? (
-                        <p className="text-[10px] text-slate-400">{categoryCounts[cat.label]} ads</p>
-                      ) : null}
+                      {categoryCounts[cat.label] ? <p className="text-[10px] text-slate-400">{categoryCounts[cat.label]} ads</p> : null}
                     </div>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Centre — Slideshow nini (itamovinga) */}
+            {/* Centre — Slideshow */}
             <div className="relative overflow-hidden rounded-2xl">
-              {CENTRE_IMAGES.map((src, i) => (
-                <img
-                  key={src}
-                  src={src}
-                  alt={`main ${i}`}
-                  className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
-                    i === slideIdx ? 'opacity-100' : 'opacity-0'
-                  }`}
-                />
+              {centreSlots.map((slot, i) => (
+                <div key={i}
+                  onClick={() => handleSlotClick(slot)}
+                  className={`absolute inset-0 transition-opacity duration-1000 ${i === slideIdx ? 'opacity-100' : 'opacity-0'} ${slot.adId ? 'cursor-pointer' : ''}`}>
+                  <img src={slot.url} alt={`main ${i}`} className="h-full w-full object-cover" />
+                  {slot.adId && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/20 transition">
+                      <span className="opacity-0 hover:opacity-100 rounded-full bg-gold-500 px-4 py-2 text-sm font-bold text-slate-950 transition">
+                        View Ad →
+                      </span>
+                    </div>
+                  )}
+                </div>
               ))}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
               {/* Stats */}
-              <div className="absolute bottom-4 left-4 right-4">
+              <div className="absolute bottom-4 left-4 right-4 pointer-events-none">
                 <div className="grid grid-cols-4 gap-2">
                   {[
                     { value: ads.length, label: 'Listings' },
@@ -169,40 +152,37 @@ const Landing = () => {
               </div>
               {/* Dots */}
               <div className="absolute top-3 left-1/2 flex -translate-x-1/2 gap-1.5">
-                {CENTRE_IMAGES.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSlideIdx(i)}
-                    className={`h-1.5 rounded-full transition-all ${
-                      i === slideIdx ? 'w-5 bg-gold-400' : 'w-1.5 bg-white/50'
-                    }`}
-                  />
+                {centreSlots.map((_, i) => (
+                  <button key={i} onClick={() => setSlideIdx(i)}
+                    className={`h-1.5 rounded-full transition-all ${i === slideIdx ? 'w-5 bg-gold-400' : 'w-1.5 bg-white/50'}`} />
                 ))}
               </div>
             </div>
 
-            {/* Right — Images grid + View All: hidden kuri mobile */}
+            {/* Right — Side images + View All */}
             <div className="hidden flex-col gap-2 lg:flex">
               <div className="grid grid-cols-2 gap-2 flex-1">
-                {SIDE_IMAGES.map((src, i) => (
-                  <div key={i} className="overflow-hidden rounded-xl">
-                    <img
-                      src={src}
-                      alt={`side ${i}`}
-                      className="h-full w-full object-cover"
-                      style={{ minHeight: '90px' }}
-                    />
+                {sideSlots.map((slot, i) => (
+                  <div key={i}
+                    onClick={() => handleSlotClick(slot)}
+                    className={`overflow-hidden rounded-xl ${slot.adId ? 'cursor-pointer ring-0 hover:ring-2 hover:ring-gold-400 transition' : ''}`}>
+                    <img src={slot.url} alt={`side ${i}`} className="h-full w-full object-cover transition hover:scale-105 duration-300"
+                      style={{ minHeight: '90px' }} />
                   </div>
                 ))}
               </div>
-              <button
-                onClick={() => navigate('/home')}
-                className="btn btn-gold w-full"
-              >
+              <button onClick={() => navigate('/home')} className="btn btn-gold w-full">
                 View All Listings →
               </button>
             </div>
 
+          </div>
+
+          {/* View All — mobile */}
+          <div className="mt-4 lg:hidden">
+            <button onClick={() => navigate('/home')} className="btn btn-gold w-full">
+              View All Listings →
+            </button>
           </div>
         </div>
       </section>
@@ -216,9 +196,7 @@ const Landing = () => {
           <div className="grid gap-6 sm:grid-cols-3">
             {HOW.map((s) => (
               <div key={s.step} className="card relative p-5 text-center">
-                <span className="absolute -top-3 left-6 rounded-full bg-gold-500 px-3 py-0.5 text-xs font-bold text-slate-950">
-                  {s.step}
-                </span>
+                <span className="absolute -top-3 left-6 rounded-full bg-gold-500 px-3 py-0.5 text-xs font-bold text-slate-950">{s.step}</span>
                 <div className="mb-3 text-3xl">{s.icon}</div>
                 <h3 className="font-bold text-slate-900 dark:text-white">{s.title}</h3>
               </div>
