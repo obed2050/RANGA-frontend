@@ -49,31 +49,6 @@ const AdminSettings = () => {
     toast.success('All settings saved successfully')
   }
 
-  // Guhindura image ukoresheje file upload
-  const handleLandingFile = (e, type, index) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (file.size > 5 * 1024 * 1024) { toast.error('Max 5MB'); return }
-    const reader = new FileReader()
-    reader.onload = () => {
-      setLandingImgs((prev) => {
-        const updated = { ...prev, [type]: [...prev[type]] }
-        updated[type][index] = { url: reader.result, adId: null }
-        return updated
-      })
-    }
-    reader.readAsDataURL(file)
-  }
-
-  // Guhindura image ukoresheje URL
-  const handleLandingUrl = (type, index, url) => {
-    setLandingImgs((prev) => {
-      const updated = { ...prev, [type]: [...prev[type]] }
-      updated[type][index] = { ...updated[type][index], url }
-      return updated
-    })
-  }
-
   // Guhitamo ad ivuye muri published ads
   const pickAdImage = (ad) => {
     const { type, index } = showAdPicker
@@ -126,28 +101,12 @@ const AdminSettings = () => {
           <span className="absolute top-1 right-1 rounded-full bg-emerald-500/80 px-2 py-0.5 text-[10px] text-white">Ad linked</span>
         )}
       </div>
-
-      {/* 3 options: URL, Upload, Pick from Ads */}
-      <input
-        type="text"
-        value={getSlotUrl(slot)}
-        onChange={(e) => handleLandingUrl(type, index, e.target.value)}
-        placeholder="/filename.webp or https://..."
-        className="w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-1.5 text-xs text-white outline-none focus:border-emerald-500"
-      />
-      <div className="grid grid-cols-2 gap-1.5">
-        <label className="flex cursor-pointer items-center justify-center gap-1 rounded-lg bg-slate-800 px-2 py-1.5 text-xs text-slate-300 hover:bg-slate-700 transition">
-          📁 Upload
-          <input type="file" accept="image/*" className="hidden"
-            onChange={(e) => handleLandingFile(e, type, index)} />
-        </label>
-        <button
-          onClick={() => { setShowAdPicker({ type, index }); setAdSearch('') }}
-          className="rounded-lg bg-blue-500/20 px-2 py-1.5 text-xs text-blue-300 hover:bg-blue-500/30 transition"
-        >
-          🖼️ From Ads
-        </button>
-      </div>
+      <button
+        onClick={() => { setShowAdPicker({ type, index }); setAdSearch('') }}
+        className="w-full rounded-lg bg-blue-500/20 px-2 py-1.5 text-xs text-blue-300 hover:bg-blue-500/30 transition"
+      >
+        🖼️ From Ads
+      </button>
     </div>
   )
 
@@ -176,8 +135,7 @@ const AdminSettings = () => {
           <div className="rounded-[20px] border border-slate-800/80 bg-slate-900/70 p-6 shadow-soft">
             <h3 className="text-lg font-semibold text-white">🖼️ Landing Page Images</h3>
             <p className="mt-1 text-sm text-slate-400">
-              Shyiramo URL, upload ifoto, cyangwa hitamo image ivuye muri ads zashyizwe — iyo ukanda <strong className="text-blue-300">🖼️ From Ads</strong>.
-              Images zifite ad zizajya zijya kuri page ya wa seller.
+              Hitamo image ivuye muri ads zashyizwe ukoresheje <strong className="text-blue-300">🖼️ From Ads</strong> — iyo ukanda image kuri landing page izajya kuri page ya wa seller.
             </p>
 
             {/* Centre Slideshow */}
